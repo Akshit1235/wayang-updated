@@ -98,12 +98,22 @@ class PlanBuilder(private[api] val wayangContext: WayangContext, private var job
 
 
   /**
-    * Build the [[org.apache.wayang.core.api.Job]] and execute it.
-    */
+   * Build the [[org.apache.wayang.core.api.Job]] and execute it.
+   */
   def buildAndExecute(): Unit = {
     val plan: WayangPlan = new WayangPlan(this.sinks.toArray: _*)
     if (this.experiment == null) this.wayangContext.execute(jobName, plan, this.udfJars.toArray: _*)
     else this.wayangContext.execute(jobName, plan, this.experiment, this.udfJars.toArray: _*)
+  }
+
+  def build(): WayangPlan = {
+    new WayangPlan(this.sinks.toArray: _*)
+  }
+  This entails changes to 1 or 2 uses of .build, which traditionally also executed. Now instead of build, we call buildAndExecute instead.
+  In DataQuanta.scala, the PlanBuilder is only visible at the api level, so we exposed it with a getter:
+
+  def getPlanBuilder(): PlanBuilder = {
+    this.planBuilder
   }
 
   /**
